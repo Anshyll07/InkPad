@@ -33,12 +33,15 @@ export function initAiPanel() {
 
   function updatePanelState(open) {
     isPanelOpen = open;
+    const resizerAi = document.getElementById('resizer-ai');
     if (isPanelOpen) {
       panel.classList.remove('hidden');
+      if (resizerAi) resizerAi.style.display = 'flex';
       if (toggleBtn) toggleBtn.classList.add('active');
       if (openBtn) openBtn.classList.add('hidden');
     } else {
       panel.classList.add('hidden');
+      if (resizerAi) resizerAi.style.display = 'none';
       if (toggleBtn) toggleBtn.classList.remove('active');
       if (openBtn) openBtn.classList.remove('hidden');
     }

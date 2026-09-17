@@ -492,7 +492,8 @@ body.resizing {
 }
 
 body.resizing #toolbar,
-body.resizing #icon-panel {
+body.resizing #icon-panel,
+body.resizing #ai-panel {
   transition: none !important;
 }
 
@@ -1479,8 +1480,18 @@ input[type="color"]::-moz-color-swatch {
   padding-right: 12px;
 }
 
+.page-nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
 .page-tab {
-  padding: 6px 16px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
   font-size: 12px;
   font-weight: 600;
   font-family: inherit;
@@ -1491,6 +1502,26 @@ input[type="color"]::-moz-color-swatch {
   cursor: pointer;
   transition: transform 120ms var(--ease-press), background-color 150ms ease, border-color 150ms ease, color 150ms ease;
   white-space: nowrap;
+}
+
+.page-tab-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: var(--radius-full);
+  font-size: 14px;
+  line-height: 1;
+  color: var(--text-tertiary);
+  margin-left: 2px;
+  transition: all 120ms ease;
+}
+
+.page-tab-close:hover {
+  background: var(--danger-soft);
+  color: var(--danger);
+  transform: scale(1.15);
 }
 
 @media (hover: hover) and (pointer: fine) {
@@ -1509,6 +1540,23 @@ input[type="color"]::-moz-color-swatch {
   background: var(--accent-soft);
   color: var(--accent);
   border-color: var(--accent);
+}
+
+.btn-danger {
+  color: var(--danger);
+}
+
+.btn-danger:hover:not(:disabled) {
+  background: var(--danger-soft);
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
+.btn-danger:disabled,
+#delete-page:disabled {
+  opacity: 0.38;
+  cursor: not-allowed;
+  pointer-events: none;
 }
 
 /* ═══════════ KEYBOARD SHORTCUTS MODAL ═══════════ */
@@ -2611,15 +2659,16 @@ kbd {
 .ai-panel {
   display: flex;
   flex-direction: column;
-  width: 330px;
-  min-width: 290px;
-  max-width: 440px;
+  width: 340px;
+  min-width: 280px;
+  max-width: 850px;
   height: 100%;
   background: var(--bg-surface, #ffffff);
   border-left: 1px solid var(--border, #e5e7eb);
   overflow: hidden;
   z-index: 20;
   transition: transform 200ms ease, width 150ms ease;
+  flex-shrink: 0;
 }
 
 .ai-panel.hidden {

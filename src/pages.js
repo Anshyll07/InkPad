@@ -40,6 +40,14 @@ export function initPages(state) {
   document.getElementById('add-page').addEventListener('click', () => {
     addPage(state);
   });
+
+  // Delete page button
+  const deleteBtn = document.getElementById('delete-page');
+  if (deleteBtn) {
+    deleteBtn.addEventListener('click', () => {
+      deletePage(state);
+    });
+  }
 }
 
 export function addPage(state) {
@@ -129,6 +137,82 @@ export function saveCurrentPage(state) {
   }
 }
 
+export async function deletePage(state, pageIndex) {
+  const s = state || window.__inkpad_state;
+  if (!s || !s.pages || s.pages.length <= 1) {
+    return false;
+  }
+
+  const targetIndex = (typeof pageIndex === 'number') ? pageIndex : s.currentPage;
+  if (targetIndex < 0 || targetIndex >= s.pages.length) return false;
+
+  const canvas = s.canvas;
+  const pageData = targetIndex === s.currentPage
+    ? canvas.toJSON(CUSTOM_FABRIC_PROPERTIES)
+    : s.pages[targetIndex];
+
+  const hasContent = pageData && Array.isArray(pageData.objects) && pageData.objects.length > 0;
+  if (hasContent) {
+    const confirmed = window.confirm(`Delete Page ${targetIndex + 1}? This action cannot be undone.`);
+    if (!confirmed) return false;
+  }
+
+  canvas.discardActiveObject();
+
+  // If deleting another page, save current page content first
+  if (targetIndex !== s.currentPage) {
+    s.pages[s.currentPage] = canvas.toJSON(CUSTOM_FABRIC_PROPERTIES);
+  }
+
+  // Remove targeted page
+  s.pages.splice(targetIndex, 1);
+
+  // Compute new active page index
+  let nextIndex = s.currentPage;
+  if (targetIndex === s.currentPage) {
+    nextIndex = Math.min(s.pages.length - 1, targetIndex);
+  } else if (targetIndex < s.currentPage) {
+    nextIndex = s.currentPage - 1;
+  }
+
+  s.currentPage = nextIndex;
+  renderPageTabs(s);
+
+  // Load new active page onto canvas
+  const nextPageData = s.pages[nextIndex];
+  try {
+    if (nextPageData && nextPageData.objects && nextPageData.objects.length > 0) {
+      await new Promise((resolve) => {
+        const timer = setTimeout(() => {
+          canvas.renderAll();
+          resolve();
+        }, 1200);
+
+        try {
+          canvas.loadFromJSON(nextPageData, () => {
+            clearTimeout(timer);
+            canvas.renderAll();
+            resolve();
+          });
+        } catch {
+          clearTimeout(timer);
+          canvas.renderAll();
+          resolve();
+        }
+      });
+    } else {
+      canvas.clear();
+      canvas.setBackgroundColor('#ffffff', canvas.renderAll.bind(canvas));
+    }
+  } catch (err) {
+    console.warn('Error loading page after deletion:', err);
+  }
+
+  resetUndoStack();
+  saveDocument(s);
+  return true;
+}
+
 export function renderPageTabs(state) {
   const s = state || window.__inkpad_state;
   if (!s || !s.pages) return;
@@ -136,10 +220,35 @@ export function renderPageTabs(state) {
   if (!container) return;
   container.innerHTML = '';
 
+  const deleteBtn = document.getElementById('delete-page');
+  if (deleteBtn) {
+    deleteBtn.disabled = s.pages.length <= 1;
+    deleteBtn.title = s.pages.length <= 1
+      ? 'Cannot delete the only page'
+      : `Delete Page ${s.currentPage + 1}`;
+  }
+
   s.pages.forEach((_, index) => {
     const tab = document.createElement('button');
     tab.className = `page-tab${index === s.currentPage ? ' active' : ''}`;
-    tab.textContent = `Page ${index + 1}`;
+    tab.title = `Switch to Page ${index + 1}`;
+
+    const label = document.createElement('span');
+    label.textContent = `Page ${index + 1}`;
+    tab.appendChild(label);
+
+    if (s.pages.length > 1) {
+      const closeBtn = document.createElement('span');
+      closeBtn.className = 'page-tab-close';
+      closeBtn.innerHTML = '&times;';
+      closeBtn.title = `Delete Page ${index + 1}`;
+      closeBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        deletePage(s, index);
+      });
+      tab.appendChild(closeBtn);
+    }
+
     tab.addEventListener('click', () => switchPage(s, index));
     container.appendChild(tab);
   });

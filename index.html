@@ -404,6 +404,11 @@
       <div id="icon-grid"></div>
     </aside>
 
+    <!-- AI Assistant Resizer Gutter -->
+    <div id="resizer-ai" class="resizer-gutter" title="Drag to resize EDITH panel (Double-click to reset)">
+      <div class="resizer-handle"></div>
+    </div>
+
     <!-- AI Assistant Panel (Right) -->
     <aside id="ai-panel" class="ai-panel">
       <div class="panel-header ai-panel-header">
@@ -490,10 +495,16 @@
   <!-- ── Page Navigator ── -->
   <footer id="page-nav">
     <div id="page-tabs"></div>
-    <button id="add-page" class="btn-secondary">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-      Add Page
-    </button>
+    <div class="page-nav-actions">
+      <button id="delete-page" class="btn-secondary btn-danger" title="Delete current page">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+        Delete Page
+      </button>
+      <button id="add-page" class="btn-secondary">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Add Page
+      </button>
+    </div>
   </footer>
 
   <!-- ── Keyboard Shortcuts Modal ── -->

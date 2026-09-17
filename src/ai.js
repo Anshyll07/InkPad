@@ -11,7 +11,7 @@ import {
 } from './canvas.js';
 import { createTable } from './table.js';
 import { insertVectorIcon } from './icons.js';
-import { addPage, switchPage, saveCurrentPage } from './pages.js';
+import { addPage, switchPage, saveCurrentPage, deletePage } from './pages.js';
 
 const { fabric } = window;
 
@@ -602,6 +602,15 @@ export async function executeCanvasActions(actions, { onStatus } = {}) {
           const pageIdx = typeof action.pageIndex === 'number' ? action.pageIndex : 0;
           if (onStatus) onStatus(`Viewing Page ${pageIdx + 1}…`);
           await switchPage(state, pageIdx);
+          canvas = getCanvas() || window.__inkpad_canvas;
+          await new Promise((r) => setTimeout(r, 60));
+          continue;
+        }
+
+        if (action.type === 'deletePage') {
+          const pageIdx = typeof action.pageIndex === 'number' ? action.pageIndex : state.currentPage;
+          if (onStatus) onStatus(`Deleting Page ${pageIdx + 1}…`);
+          await deletePage(state, pageIdx);
           canvas = getCanvas() || window.__inkpad_canvas;
           await new Promise((r) => setTimeout(r, 60));
           continue;
