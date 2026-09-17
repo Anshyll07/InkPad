@@ -1,0 +1,15 @@
+node_modules/
+dist/
+.env
+.env.*
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+Thumbs.db
+.DS_Store
+*.log
+npm-debug.log*
+.cache/
+.agents/
