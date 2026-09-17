@@ -38,6 +38,7 @@ import {
   saveAll,
   scheduleAutoSave,
 } from './storage.js';
+import { initAiPanel } from './aiPanel.js';
 
 const state = {
   currentTool: 'select',
@@ -86,6 +87,7 @@ async function init() {
   const loader = document.getElementById('loading');
 
   // 1. Load saved user settings (font, colors, sizes, opacities, tool, zoom)
+  window.__inkpad_state = state;
   const savedSettings = loadSavedSettings(state);
   Object.assign(state, savedSettings);
   if (state.currentZoom) currentZoom = state.currentZoom;
@@ -145,6 +147,10 @@ async function init() {
   // Initialize table cell editing
   setupTableCellEditing(state.canvas);
   console.log('✓ Table editing initialized');
+
+  // Initialize AI assistant panel (EDITH)
+  initAiPanel();
+  console.log('✓ AI Assistant initialized');
 
   // Bind toolbar
   setupToolbar();
@@ -813,6 +819,12 @@ function setupKeyboard() {
         case 'l': e.preventDefault(); setTool('line', state); break;
         case 'a': e.preventDefault(); setTool('arrow', state); break;
         case 'p': e.preventDefault(); setTool('draw', state); break;
+        case 'i': {
+          e.preventDefault();
+          const toggleAiBtn = document.getElementById('toggle-ai-top');
+          if (toggleAiBtn) toggleAiBtn.click();
+          break;
+        }
       }
     }
 

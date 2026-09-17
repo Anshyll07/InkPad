@@ -195,3 +195,72 @@ function showToast(message) {
     setTimeout(() => toast.remove(), 300);
   }, 2000);
 }
+
+export function insertVectorIcon(iconName, { x = 100, y = 100, size = 28, color = '#1c1917', canvas = null } = {}) {
+  const { fabric } = window;
+  const targetCanvas = canvas || (window.__inkpad_canvas);
+  if (!targetCanvas || !fabric) return Promise.resolve(null);
+  
+  try {
+    const cleanKey = (iconName || '').toLowerCase().replace(/[-_\s]/g, '');
+    const matchingKey = Object.keys(icons).find(
+      (k) => k.toLowerCase() === (iconName || '').toLowerCase() || k.toLowerCase().replace(/[-_\s]/g, '') === cleanKey
+    );
+    const iconData = icons[iconName] || (matchingKey ? icons[matchingKey] : null);
+    if (!iconData) return Promise.resolve(null);
+    const childNodes = iconData[2];
+    if (!childNodes || !Array.isArray(childNodes)) return Promise.resolve(null);
+
+    let children = '';
+    for (const node of childNodes) {
+      const tag = node[0];
+      const attrs = node[1] || {};
+      const attrStr = Object.entries(attrs).map(([k, v]) => `${k}="${v}"`).join(' ');
+      children += `<${tag} ${attrStr}/>`;
+    }
+    const svgString = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="${color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${children}</svg>`;
+
+    return new Promise((resolve) => {
+      const timer = setTimeout(() => resolve(null), 1200);
+      try {
+        fabric.loadSVGFromString(svgString, (objects, options) => {
+          clearTimeout(timer);
+          try {
+            if (!objects || !Array.isArray(objects)) return resolve(null);
+            const group = fabric.util.groupSVGElements(objects, options);
+            if (!group) return resolve(null);
+            const scale = size / 24;
+            group.set({
+              left: x,
+              top: y,
+              scaleX: scale,
+              scaleY: scale,
+              strokeUniform: true,
+              objectCaching: false,
+            });
+            if (typeof group.forEachObject === 'function') {
+              group.forEachObject((o) => {
+                o.objectCaching = false;
+                o.strokeUniform = true;
+              });
+            }
+            targetCanvas.add(group);
+            targetCanvas.requestRenderAll();
+            resolve(group);
+          } catch (e) {
+            console.warn('Error grouping SVG icon:', e);
+            resolve(null);
+          }
+        });
+      } catch (err) {
+        clearTimeout(timer);
+        console.warn('fabric.loadSVGFromString error:', err);
+        resolve(null);
+      }
+    });
+  } catch (err) {
+    console.warn('insertVectorIcon error:', err);
+    return Promise.resolve(null);
+  }
+}
+

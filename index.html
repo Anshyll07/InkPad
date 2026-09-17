@@ -66,6 +66,12 @@
           <polyline points="21 15 16 10 5 21"/>
         </svg>
       </button>
+      <button id="toggle-ai-top" class="icon-btn ai-toggle-btn active" title="Toggle EDITH AI Notes Assistant (Shift+I)">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2l2.4 7.2L21 12l-6.6 2.8L12 22l-2.4-7.2L3 12l6.6-2.8L12 2z"/>
+        </svg>
+        <span class="ai-sparkle-dot"></span>
+      </button>
       <span class="top-divider"></span>
       <button id="export-pdf" class="btn-primary">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
@@ -368,15 +374,23 @@
         </svg>
         <span>Icons</span>
       </button>
+
+      <!-- Floating Edge Expand Button for AI Panel -->
+      <button id="open-ai-btn" class="panel-expand-tab ai-expand-tab hidden" title="Open EDITH AI Assistant (Shift+I)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2l2.4 7.2L21 12l-6.6 2.8L12 22l-2.4-7.2L3 12l6.6-2.8L12 2z"/>
+        </svg>
+        <span>EDITH</span>
+      </button>
     </section>
 
     <!-- Right Resizer Gutter -->
-    <div id="resizer-right" class="resizer-gutter" title="Drag to resize icon panel (Double-click to reset)">
+    <div id="resizer-right" class="resizer-gutter" title="Drag to resize panel (Double-click to reset)">
       <div class="resizer-handle"></div>
     </div>
 
     <!-- Icon Panel (Right) -->
-    <aside id="icon-panel">
+    <aside id="icon-panel" class="hidden">
       <div class="panel-header">
         <h3>Icons</h3>
         <span id="icon-count" class="icon-count">Loading…</span>
@@ -388,6 +402,88 @@
       </div>
       <input type="text" id="icon-search" placeholder="Search 1500+ icons…" spellcheck="false">
       <div id="icon-grid"></div>
+    </aside>
+
+    <!-- AI Assistant Panel (Right) -->
+    <aside id="ai-panel" class="ai-panel">
+      <div class="panel-header ai-panel-header">
+        <div class="ai-title-group">
+          <div class="ai-avatar">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 2l2.4 7.2L21 12l-6.6 2.8L12 22l-2.4-7.2L3 12l6.6-2.8L12 2z"/>
+            </svg>
+          </div>
+          <div class="ai-title-meta">
+            <h3>EDITH</h3>
+            <span class="ai-model-pill" id="ai-model-badge">Nemotron 3.5</span>
+          </div>
+        </div>
+        <div class="ai-header-actions">
+          <button id="ai-settings-btn" class="toggle-btn" title="OpenRouter Settings">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="3"/>
+              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+            </svg>
+          </button>
+          <button id="ai-clear-btn" class="toggle-btn" title="Clear Chat History">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="3 6 5 6 21 6"/>
+              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+            </svg>
+          </button>
+          <button id="close-ai" class="toggle-btn" title="Collapse AI Panel">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="9 18 15 12 9 6"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Quick Suggestion Prompts Strip -->
+      <div class="ai-prompts-strip" id="ai-prompts-strip">
+        <button class="ai-prompt-chip" data-prompt="Create comprehensive structured notes on Photosynthesis with a summary table, rounded formula box, and highlighted key concepts">
+          🌿 Photosynthesis Notes
+        </button>
+        <button class="ai-prompt-chip" data-prompt="Create clear study notes on Quantum Computing fundamentals with key definitions boxed and terms highlighted in pastel">
+          ⚛️ Quantum Computing
+        </button>
+        <button class="ai-prompt-chip" data-prompt="Enclose the key takeaways on this page inside rounded boxes with soft background tints">
+          📦 Box Key Takeaways
+        </button>
+        <button class="ai-prompt-chip" data-prompt="Highlight the critical concepts on this page using multi-colored pastel tints with low opacity">
+          🖍️ Multi-color Highlights
+        </button>
+        <button class="ai-prompt-chip" data-prompt="Add a summary comparison table summarizing the main points on this page">
+          📊 Add Summary Table
+        </button>
+      </div>
+
+      <!-- Chat Feed -->
+      <div class="ai-chat-messages" id="ai-chat-messages">
+        <div class="ai-msg ai-msg-assistant">
+          <div class="ai-msg-bubble">
+            <p>Hi, I'm <strong>EDITH</strong>! I can answer questions, explain concepts, and draft or edit beautiful handwritten notes on your canvas.</p>
+            <p class="ai-msg-subtext">Ask me anything or tell me to generate notes, add rounded boxes, apply multi-color pastel highlights, or build tables.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Live Status Bar -->
+      <div class="ai-status-bar" id="ai-status-bar">
+        <span class="ai-status-dot"></span>
+        <span id="ai-status-text" class="ai-status-text">Ready</span>
+      </div>
+
+      <!-- Chat Input Area -->
+      <div class="ai-input-area">
+        <textarea id="ai-input" rows="1" placeholder="Ask EDITH or tell her what notes to make…" spellcheck="false"></textarea>
+        <button id="ai-send-btn" class="ai-send-btn" title="Send (Enter)">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="22" y1="2" x2="11" y2="13"/>
+            <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+          </svg>
+        </button>
+      </div>
     </aside>
   </main>
 
@@ -440,10 +536,43 @@
           <div class="shortcut-row"><span>Deselect</span><kbd>Esc</kbd></div>
           <div class="shortcut-row"><span>Right-Click Menu</span><span>Right Click</span></div>
           <div class="shortcut-row"><span>Shortcuts Cheat Sheet</span><kbd>?</kbd></div>
+          <div class="shortcut-row"><span>EDITH AI Assistant</span><div><kbd>Shift</kbd>+<kbd>I</kbd></div></div>
         </div>
       </div>
       <div class="modal-footer">
         <span>Tip: Double-click any sidebar resizer to reset to its default width.</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── AI Settings Modal ── -->
+  <div id="ai-settings-modal" class="modal-overlay hidden" aria-hidden="true">
+    <div class="modal-backdrop" id="ai-settings-backdrop"></div>
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-title-wrap">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"/>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+          </svg>
+          <h3>EDITH AI Settings</h3>
+        </div>
+        <button id="ai-settings-close" class="modal-close-btn" title="Close">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="settings-field">
+          <label for="ai-api-key-input">OpenRouter API Key</label>
+          <input type="password" id="ai-api-key-input" placeholder="sk-or-v1-..." autocomplete="off">
+          <span class="settings-hint">Connected from <code>.env</code> by default. Override here if desired.</span>
+        </div>
+        <div class="settings-field">
+          <label for="ai-model-input">OpenRouter Model ID</label>
+          <input type="text" id="ai-model-input" placeholder="nvidia/nemotron-3.5-lightning:free">
+          <span class="settings-hint">Using <code>nvidia/nemotron-3.5-lightning:free</code>.</span>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button id="ai-settings-save" class="btn-primary">Save Settings</button>
       </div>
     </div>
   </div>

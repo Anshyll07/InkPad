@@ -1,7 +1,7 @@
 // Page creation, switching, and tab rendering
 
 import { loadSavedDocument, saveDocument } from './storage.js';
-import { CUSTOM_FABRIC_PROPERTIES } from './canvas.js';
+import { CUSTOM_FABRIC_PROPERTIES, resetUndoStack } from './canvas.js';
 
 let pagesInitialized = false;
 
@@ -42,70 +42,106 @@ export function initPages(state) {
   });
 }
 
-function addPage(state) {
-  const canvas = state.canvas;
+export function addPage(state) {
+  const s = state || window.__inkpad_state;
+  if (!s || !s.canvas) return 0;
+  const canvas = s.canvas;
+
+  // Discard active selection
+  canvas.discardActiveObject();
 
   // Save current page content
-  state.pages[state.currentPage] = canvas.toJSON(CUSTOM_FABRIC_PROPERTIES);
+  s.pages[s.currentPage] = canvas.toJSON(CUSTOM_FABRIC_PROPERTIES);
 
   // Create a new blank page
-  state.pages.push({ version: canvas.toJSON(CUSTOM_FABRIC_PROPERTIES).version, objects: [] });
-  state.currentPage = state.pages.length - 1;
+  s.pages.push({ version: canvas.toJSON(CUSTOM_FABRIC_PROPERTIES).version, objects: [] });
+  s.currentPage = s.pages.length - 1;
 
   // Clear the canvas for the new page
   canvas.clear();
   canvas.setBackgroundColor('#ffffff', canvas.renderAll.bind(canvas));
 
-  renderPageTabs(state);
-  saveDocument(state);
+  resetUndoStack();
+  renderPageTabs(s);
+  saveDocument(s);
+  return s.currentPage;
 }
 
-export function switchPage(state, pageIndex) {
-  if (pageIndex === state.currentPage) return;
-  if (pageIndex < 0 || pageIndex >= state.pages.length) return;
+export async function switchPage(state, pageIndex) {
+  const s = state || window.__inkpad_state;
+  if (!s || !s.canvas) return;
+  if (pageIndex === s.currentPage) return;
+  if (pageIndex < 0 || pageIndex >= s.pages.length) return;
 
-  const canvas = state.canvas;
+  const canvas = s.canvas;
 
   // Discard any active editing
   canvas.discardActiveObject();
 
   // Save current page state
-  state.pages[state.currentPage] = canvas.toJSON(CUSTOM_FABRIC_PROPERTIES);
+  s.pages[s.currentPage] = canvas.toJSON(CUSTOM_FABRIC_PROPERTIES);
 
   // Switch to target page
-  state.currentPage = pageIndex;
+  s.currentPage = pageIndex;
+  renderPageTabs(s);
 
-  const pageData = state.pages[pageIndex];
+  const pageData = s.pages[pageIndex];
 
-  if (pageData && pageData.objects && pageData.objects.length > 0) {
-    canvas.loadFromJSON(pageData, () => {
-      canvas.renderAll();
-    });
-  } else {
-    canvas.clear();
-    canvas.setBackgroundColor('#ffffff', canvas.renderAll.bind(canvas));
+  try {
+    if (pageData && pageData.objects && pageData.objects.length > 0) {
+      await new Promise((resolve) => {
+        const timer = setTimeout(() => {
+          console.warn('loadFromJSON timed out, rendering canvas');
+          canvas.renderAll();
+          resolve();
+        }, 1200);
+
+        try {
+          canvas.loadFromJSON(pageData, () => {
+            clearTimeout(timer);
+            canvas.renderAll();
+            resolve();
+          });
+        } catch (loadErr) {
+          clearTimeout(timer);
+          console.warn('loadFromJSON error:', loadErr);
+          canvas.renderAll();
+          resolve();
+        }
+      });
+    } else {
+      canvas.clear();
+      canvas.setBackgroundColor('#ffffff', canvas.renderAll.bind(canvas));
+    }
+  } catch (switchErr) {
+    console.warn('Error during page switch:', switchErr);
   }
 
-  renderPageTabs(state);
-  saveDocument(state);
+  resetUndoStack();
+  saveDocument(s);
 }
 
 export function saveCurrentPage(state) {
-  if (state.canvas && state.pages && state.pages.length > 0) {
-    state.pages[state.currentPage] = state.canvas.toJSON(CUSTOM_FABRIC_PROPERTIES);
-    saveDocument(state);
+  const s = state || window.__inkpad_state;
+  if (s && s.canvas && s.pages && s.pages.length > 0) {
+    s.pages[s.currentPage] = s.canvas.toJSON(CUSTOM_FABRIC_PROPERTIES);
+    saveDocument(s);
   }
 }
 
-function renderPageTabs(state) {
+export function renderPageTabs(state) {
+  const s = state || window.__inkpad_state;
+  if (!s || !s.pages) return;
   const container = document.getElementById('page-tabs');
+  if (!container) return;
   container.innerHTML = '';
 
-  state.pages.forEach((_, index) => {
+  s.pages.forEach((_, index) => {
     const tab = document.createElement('button');
-    tab.className = `page-tab${index === state.currentPage ? ' active' : ''}`;
+    tab.className = `page-tab${index === s.currentPage ? ' active' : ''}`;
     tab.textContent = `Page ${index + 1}`;
-    tab.addEventListener('click', () => switchPage(state, index));
+    tab.addEventListener('click', () => switchPage(s, index));
     container.appendChild(tab);
   });
 }
+

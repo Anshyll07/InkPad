@@ -204,6 +204,8 @@ export function initCanvas(state) {
     enableRetinaScaling: true,
     imageSmoothingEnabled: true,
   });
+  window.__inkpad_canvas = canvas;
+  window.__inkpad_state = state;
 
   if (canvas.contextContainer) {
     canvas.contextContainer.imageSmoothingEnabled = true;
@@ -1286,6 +1288,15 @@ export function saveState() {
     onCanvasChangeCallback();
   }
 }
+export function resetUndoStack() {
+  undoStack.length = 0;
+  redoStack.length = 0;
+  const wasPaused = skipHistory;
+  skipHistory = false;
+  saveState();
+  skipHistory = wasPaused;
+}
+
 
 export function undo() {
   if (undoStack.length <= 1) return; // Keep at least the initial state
